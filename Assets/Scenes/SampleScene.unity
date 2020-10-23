@@ -876,6 +876,7 @@ GameObject:
   - component: {fileID: 718659143}
   - component: {fileID: 718659142}
   - component: {fileID: 718659141}
+  - component: {fileID: 718659140}
   m_Layer: 0
   m_Name: CRotor
   m_TagString: Untagged
@@ -897,6 +898,22 @@ Transform:
   m_Father: {fileID: 1515908321}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &718659140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718659138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28f30b760a9b734f80087a204c2480b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Axes:
+  - {x: 1, y: 0, z: 0}
+  - {x: 0, y: 1, z: 0}
+  - {x: 0, y: 0, z: 1}
 --- !u!65 &718659141
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1238,6 +1255,7 @@ GameObject:
   - component: {fileID: 999499387}
   - component: {fileID: 999499386}
   - component: {fileID: 999499385}
+  - component: {fileID: 999499384}
   m_Layer: 0
   m_Name: RRotor
   m_TagString: Untagged
@@ -1259,6 +1277,20 @@ Transform:
   m_Father: {fileID: 1515908321}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &999499384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 999499382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28f30b760a9b734f80087a204c2480b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Axes:
+  - {x: 1, y: 0, z: 0}
 --- !u!65 &999499385
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1331,6 +1363,7 @@ GameObject:
   - component: {fileID: 1246875069}
   - component: {fileID: 1246875068}
   - component: {fileID: 1246875067}
+  - component: {fileID: 1246875066}
   m_Layer: 0
   m_Name: WRotor
   m_TagString: Untagged
@@ -1352,6 +1385,20 @@ Transform:
   m_Father: {fileID: 1515908321}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1246875066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1246875064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28f30b760a9b734f80087a204c2480b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Axes:
+  - {x: 0, y: 0, z: 1}
 --- !u!65 &1246875067
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1703,6 +1750,7 @@ GameObject:
   - component: {fileID: 1487936047}
   - component: {fileID: 1487936046}
   - component: {fileID: 1487936045}
+  - component: {fileID: 1487936044}
   m_Layer: 0
   m_Name: GRotor
   m_TagString: Untagged
@@ -1724,6 +1772,20 @@ Transform:
   m_Father: {fileID: 1515908321}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1487936044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1487936042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28f30b760a9b734f80087a204c2480b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Axes:
+  - {x: 0, y: 1, z: 0}
 --- !u!65 &1487936045
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1886,6 +1948,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1515908321}
+  - component: {fileID: 1515908322}
   m_Layer: 0
   m_Name: Rubik's Cube
   m_TagString: Untagged
@@ -1934,6 +1997,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1515908322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1515908320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2eeb9c7e639d8b94bb0c252bc234cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EdgeLength: 3
+  Rotors:
+  - {fileID: 718659140}
+  - {fileID: 1831159452}
+  - {fileID: 999499384}
+  - {fileID: 1487936044}
+  - {fileID: 1758033488}
+  - {fileID: 1246875066}
+  - {fileID: 1555248266}
 --- !u!1 &1539661106
 GameObject:
   m_ObjectHideFlags: 0
@@ -2039,6 +2123,7 @@ GameObject:
   - component: {fileID: 1555248269}
   - component: {fileID: 1555248268}
   - component: {fileID: 1555248267}
+  - component: {fileID: 1555248266}
   m_Layer: 0
   m_Name: YRotor
   m_TagString: Untagged
@@ -2060,6 +2145,20 @@ Transform:
   m_Father: {fileID: 1515908321}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1555248266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1555248264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28f30b760a9b734f80087a204c2480b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Axes:
+  - {x: 0, y: 0, z: 1}
 --- !u!65 &1555248267
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2318,6 +2417,7 @@ GameObject:
   - component: {fileID: 1758033491}
   - component: {fileID: 1758033490}
   - component: {fileID: 1758033489}
+  - component: {fileID: 1758033488}
   m_Layer: 0
   m_Name: BRotor
   m_TagString: Untagged
@@ -2339,6 +2439,20 @@ Transform:
   m_Father: {fileID: 1515908321}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1758033488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1758033486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28f30b760a9b734f80087a204c2480b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Axes:
+  - {x: 0, y: 1, z: 0}
 --- !u!65 &1758033489
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2411,6 +2525,7 @@ GameObject:
   - component: {fileID: 1831159455}
   - component: {fileID: 1831159454}
   - component: {fileID: 1831159453}
+  - component: {fileID: 1831159452}
   m_Layer: 0
   m_Name: ORotor
   m_TagString: Untagged
@@ -2432,6 +2547,20 @@ Transform:
   m_Father: {fileID: 1515908321}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1831159452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1831159450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28f30b760a9b734f80087a204c2480b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Axes:
+  - {x: 1, y: 0, z: 0}
 --- !u!65 &1831159453
 BoxCollider:
   m_ObjectHideFlags: 0
