@@ -46,7 +46,7 @@ public class Rotor : MonoBehaviour
 
         foreach (var axis in Axes)
         {
-            var neighbors = GetNeighbors(axis);
+            var neighbors = GetNeighbors(GetDirectionByAxis(axis));
 
             if (neighbors is null)
             {
@@ -96,5 +96,27 @@ public class Rotor : MonoBehaviour
         }
 
         return neighbors;
+    }
+
+    private Vector3 GetDirectionByAxis(Vector3 axis)
+    {
+        if (axis == Vector3.right)
+        {
+            return transform.right;
+        }
+
+        if (axis == Vector3.up)
+        {
+            return transform.up;
+        }
+
+        if (axis == Vector3.forward)
+        {
+            return transform.forward;
+        }
+
+        Assert.IsTrue(false);
+
+        return Vector3.zero;
     }
 }

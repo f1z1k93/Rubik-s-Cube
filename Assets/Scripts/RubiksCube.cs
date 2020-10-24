@@ -54,6 +54,8 @@ public class RubiksCube : MonoBehaviour
 
         RotationInfo = new RotationInfo();
 
+        RotationInfo.ScreenPositionFrom = screenPosition;
+
         var cameraRay = Camera.main.ScreenPointToRay(screenPosition);
 
         RaycastHit hit;
@@ -81,6 +83,8 @@ public class RubiksCube : MonoBehaviour
             return;
         }
 
+        RotationInfo.ScreenPositionTo = screenPosition;
+
         var cameraRay = Camera.main.ScreenPointToRay(screenPosition);
 
         RaycastHit hit;
@@ -99,10 +103,35 @@ public class RubiksCube : MonoBehaviour
 
     private void ProcessRotationInfo(RotationInfo rotationInfo)
     {
+        if (rotationInfo.From is null)
+        {
+            var rotation = GetRotation(rotationInfo.ScreenPositionFrom, rotationInfo.ScreenPositionTo);
+
+            transform.rotation *= rotation;
+
+            return;
+        }
+
         if (rotationInfo.From != null && rotationInfo.To != null)
         {
             RotateRotor(rotationInfo.From, rotationInfo.To);
         }
+    }
+
+    private Quaternion GetRotation(Vector3 screenPositionFrom, Vector3 screenPositionTo)
+    {
+        var worldPositionFrom = Camera.main.ScreenToWorldPoint(
+            new Vector3(screenPositionFrom.x, screenPositionFrom.y, Camera.main.nearClipPlane)
+        );
+
+        var worldPositionTo = Camera.main.ScreenToWorldPoint(
+            new Vector3(screenPositionTo.x, screenPositionTo.y, Camera.main.nearClipPlane)
+        );
+
+        var rotation = Quaternion.FromToRotation(worldPositionFrom - transform.position,
+                                                 worldPositionTo - transform.position);
+
+        return rotation;
     }
 
     private void RotateRotor(RotationInfo.CubeTouch from, RotationInfo.CubeTouch to)
@@ -185,4 +214,7 @@ class RotationInfo
 
     public CubeTouch From = null;
     public CubeTouch To = null;
+
+    public Vector3 ScreenPositionFrom;
+    public Vector3 ScreenPositionTo;
 }
