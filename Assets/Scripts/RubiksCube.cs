@@ -10,95 +10,88 @@ public class RubiksCube : MonoBehaviour
 
     private RotationInfo RotationInfo;
 
-    private bool isMouseButtonDown0 = false;
-
-    private Vector3 MousePositon;
+    private bool IsMouseButtonDown0 = false;
 
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            MousePositon = Input.mousePosition;
-            StartScreenTracking(MousePositon);
-            isMouseButtonDown0 = true;
+            OnStartScreenTracking(Input.mousePosition);
+            IsMouseButtonDown0 = true;
             return;
         }
 
         if (Input.GetMouseButtonUp(0))
         {
-            StopScreenTracking(Input.mousePosition);
-            isMouseButtonDown0 = false;
+            OnStopScreenTracking(Input.mousePosition);
+            IsMouseButtonDown0 = false;
             return;
-
         }
 
-        if (isMouseButtonDown0)
+        if (IsMouseButtonDown0)
         {
-            if (Vector3.Distance(Input.mousePosition, MousePositon) < 1f)
-            {
-                return;
-            }
-
-            MousePositon = Input.mousePosition;
-
-            ContinueScreenTracking(MousePositon);
+            OnContinueScreenTracking(Input.mousePosition);
+            return;
         }
     }
 
-    private void StartScreenTracking(Vector3 screenPosition)
+    private void OnStartScreenTracking(Vector3 screenPosition)
     {
-        if (!(RotationInfo is null))
-        {
-            StopScreenTracking(screenPosition);
-        }
+        Assert.IsNull(RotationInfo);
 
         RotationInfo = new RotationInfo();
+        RotationInfo.ScreenPositionFrom = screenPosition;
+        RotationInfo.CubeTouchFrom = TryGetCubeTouch(screenPosition);
+        RotationInfo.Type = RotationInfo.CubeTouchFrom is null ? RotationInfo.RotationType.CUBE :
+                                                                 RotationInfo.RotationType.ROTOR;
+    }
+
+    private void OnContinueScreenTracking(Vector3 screenPosition)
+    {
+        Assert.IsNotNull(RotationInfo);
+
+        RotationInfo.ScreenPositionTo = screenPosition;
+        if (RotationInfo.Type == RotationInfo.RotationType.ROTOR)
+        {
+            RotationInfo.CubeTouchTo = TryGetCubeTouch(screenPosition);
+        }
+
+        ProcessRotationInfo(RotationInfo);
 
         RotationInfo.ScreenPositionFrom = screenPosition;
-
-        var cameraRay = Camera.main.ScreenPointToRay(screenPosition);
-
-        RaycastHit hit;
-        if (Physics.Raycast(cameraRay, out hit))
-        {
-            RotationInfo.From = new RotationInfo.CubeTouch {
-                Piece =  hit.transform,
-                Point = hit.point
-            };
-        }
     }
 
-    private void ContinueScreenTracking(Vector3 screenPosition)
+    private void OnStopScreenTracking(Vector3 screenPosition)
     {
-        if (RotationInfo.From is null)
-        {
-            return;
-        }
-    }
+        Assert.IsNotNull(RotationInfo);
 
-    private void StopScreenTracking(Vector3 screenPosition)
-    {
-        if (RotationInfo is null)
+        RotationInfo.ScreenPositionTo = screenPosition;
+        if (RotationInfo.Type == RotationInfo.RotationType.ROTOR)
         {
-            return;
+            RotationInfo.CubeTouchTo = TryGetCubeTouch(screenPosition);
         }
 
         RotationInfo.ScreenPositionTo = screenPosition;
 
+        ProcessRotationInfo(RotationInfo);
+
+        RotationInfo = null;
+    }
+
+    private RotationInfo.CubeTouch TryGetCubeTouch(Vector3 screenPosition)
+    {
         var cameraRay = Camera.main.ScreenPointToRay(screenPosition);
 
         RaycastHit hit;
         if (Physics.Raycast(cameraRay, out hit))
         {
-            RotationInfo.To = new RotationInfo.CubeTouch {
+            return new RotationInfo.CubeTouch {
                 Piece =  hit.transform,
                 Point = hit.point
             };
         }
-        
-        ProcessRotationInfo(RotationInfo);
 
-        RotationInfo = null;
+        return null;
     }
 
     private void ProcessRotationInfo(RotationInfo rotationInfo)
@@ -112,10 +105,28 @@ public class RubiksCube : MonoBehaviour
             return;
         }
 
-        if (rotationInfo.From != null && rotationInfo.To != null)
+        if (RotationInfo.Type == RotationInfo.RotationType.NONE)
         {
-            RotateRotor(rotationInfo.From, rotationInfo.To);
+            return;
         }
+
+        if (RotationInfo.Type == RotationInfo.RotationType.CUBE)
+        {
+            RotateCube(rotationInfo.ScreenPositionFrom, rotationInfo.ScreenPositionTo);
+            return;
+        }
+
+        if (rotationInfo.CubeTouchFrom is null || rotationInfo.CubeTouchTo is null)
+        {
+            return;
+        }
+
+        if (!RotateRotor(rotationInfo.CubeTouchFrom, rotationInfo.CubeTouchTo))
+        {
+            return;
+        }
+
+        rotationInfo.Type = RotationInfo.RotationType.NONE;
     }
 
     private Quaternion GetRotation(Vector3 screenPositionFrom, Vector3 screenPositionTo)
@@ -134,19 +145,35 @@ public class RubiksCube : MonoBehaviour
         return rotation;
     }
 
-    private void RotateRotor(RotationInfo.CubeTouch from, RotationInfo.CubeTouch to)
+    private bool RotateRotor(RotationInfo.CubeTouch from, RotationInfo.CubeTouch to)
     {
+        if (from.Piece == to.Piece)
+        {
+            return false;
+        }
+
         var rotorAndRotation = FindRotorAndRotation(from, to);
         
         if (rotorAndRotation is null)
         {
-            return;
+            return false;
         }
 
         var rotor = rotorAndRotation.Item1;
         var rotation = rotorAndRotation.Item2;
 
         StartCoroutine(rotor.Rotate(rotation));
+
+        return true;
+    }
+
+    private void RotateCube(Vector3 screenPositionFrom, Vector3 screenPositionTo)
+    {
+        var rotation = GetRotation(screenPositionFrom, screenPositionTo);
+
+        transform.rotation *= rotation;
+
+        return;
     }
 
     private Tuple<Rotor, Quaternion> FindRotorAndRotation(RotationInfo.CubeTouch from, RotationInfo.CubeTouch to)
@@ -206,6 +233,13 @@ public class RubiksCube : MonoBehaviour
 
 class RotationInfo
 {
+    public enum RotationType
+    {
+        NONE,
+        CUBE,
+        ROTOR,
+    }
+
     public class CubeTouch
     {
         public Transform Piece;
@@ -215,6 +249,11 @@ class RotationInfo
     public CubeTouch From = null;
     public CubeTouch To = null;
 
+    public CubeTouch CubeTouchFrom = null;
+    public CubeTouch CubeTouchTo = null;
+
     public Vector3 ScreenPositionFrom;
     public Vector3 ScreenPositionTo;
+
+    public RotationType Type;
 }
