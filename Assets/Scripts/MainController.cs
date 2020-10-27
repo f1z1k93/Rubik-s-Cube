@@ -15,9 +15,21 @@ public class MainController : MonoBehaviour
 
     private void Start()
     {
-        ScreenTracker = new MouseScreenTracker();
+        switch (Application.platform)
+        {
+            case RuntimePlatform.Android:
+                ScreenTracker = new TouchScreenTracker();
+                break;
+            case RuntimePlatform.WindowsEditor:
+            case RuntimePlatform.LinuxEditor:
+                ScreenTracker = new MouseScreenTracker();
+                break;
+            default:
+                break;
+        }
 
         Assert.IsNotNull(ScreenTracker);
+
         ScreenTracker.StartScreenTrack = (Vector3 pos) => StartTrackEvent.Invoke(pos);
         ScreenTracker.ContinueScreenTrack = (Vector3 pos) => ContinueTrackEvent.Invoke(pos);
         ScreenTracker.StopScreenTrack = (Vector3 pos) => StopTrackEvent.Invoke(pos);
@@ -64,6 +76,31 @@ class MouseScreenTracker : ScreenTracker
         {
             ContinueScreenTrack(Input.mousePosition);
             return;
+        }
+    }
+}
+class TouchScreenTracker : ScreenTracker
+{
+    public override void UpdateTrack()
+    {
+        if (Input.touchCount > 0)
+        {
+            var touch = Input.GetTouch(0);
+            Vector3 screenPosition = touch.position;
+
+            switch (touch.phase) {
+                case TouchPhase.Began:
+                    StartScreenTrack(screenPosition);
+                    break;
+                case TouchPhase.Moved:
+                    ContinueScreenTrack(screenPosition);
+                    break;
+                case TouchPhase.Ended:
+                    StopScreenTrack(screenPosition);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
