@@ -10,32 +10,7 @@ public class RubiksCube : MonoBehaviour
 
     private RotationInfo RotationInfo;
 
-    private bool IsMouseButtonDown0 = false;
-
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            OnStartScreenTracking(Input.mousePosition);
-            IsMouseButtonDown0 = true;
-            return;
-        }
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            OnStopScreenTracking(Input.mousePosition);
-            IsMouseButtonDown0 = false;
-            return;
-        }
-
-        if (IsMouseButtonDown0)
-        {
-            OnContinueScreenTracking(Input.mousePosition);
-            return;
-        }
-    }
-
-    private void OnStartScreenTracking(Vector3 screenPosition)
+    public void OnStartScreenTracking(Vector3 screenPosition)
     {
         Assert.IsNull(RotationInfo);
 
@@ -46,7 +21,7 @@ public class RubiksCube : MonoBehaviour
                                                                  RotationInfo.RotationType.ROTOR;
     }
 
-    private void OnContinueScreenTracking(Vector3 screenPosition)
+    public void OnContinueScreenTracking(Vector3 screenPosition)
     {
         Assert.IsNotNull(RotationInfo);
 
@@ -61,7 +36,7 @@ public class RubiksCube : MonoBehaviour
         RotationInfo.ScreenPositionFrom = screenPosition;
     }
 
-    private void OnStopScreenTracking(Vector3 screenPosition)
+    public void OnStopScreenTracking(Vector3 screenPosition)
     {
         Assert.IsNotNull(RotationInfo);
 
@@ -96,15 +71,6 @@ public class RubiksCube : MonoBehaviour
 
     private void ProcessRotationInfo(RotationInfo rotationInfo)
     {
-        if (rotationInfo.From is null)
-        {
-            var rotation = GetRotation(rotationInfo.ScreenPositionFrom, rotationInfo.ScreenPositionTo);
-
-            transform.rotation *= rotation;
-
-            return;
-        }
-
         if (RotationInfo.Type == RotationInfo.RotationType.NONE)
         {
             return;
@@ -245,9 +211,6 @@ class RotationInfo
         public Transform Piece;
         public Vector3 Point;
     }
-
-    public CubeTouch From = null;
-    public CubeTouch To = null;
 
     public CubeTouch CubeTouchFrom = null;
     public CubeTouch CubeTouchTo = null;
