@@ -146,7 +146,7 @@ public class RubiksCube : MonoBehaviour
         var rotor = rotorAndRotation.Item1;
         var rotation = rotorAndRotation.Item2;
 
-        rotor.Rotate(rotation);
+        StartCoroutine(rotor.Rotate(rotation));
     }
 
     private Tuple<Rotor, Quaternion> FindRotorAndRotation(RotationInfo.CubeTouch from, RotationInfo.CubeTouch to)

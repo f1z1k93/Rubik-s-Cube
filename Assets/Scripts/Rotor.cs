@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -6,7 +7,7 @@ public class Rotor : MonoBehaviour
 {
     [SerializeField] private List<Vector3> Axes;
 
-    private static float RotationAngle = 90f;
+    private const float RotationAngle = 90f;
 
     private Transform RubiksCube;
 
@@ -15,7 +16,7 @@ public class Rotor : MonoBehaviour
         RubiksCube = transform.parent;
     }
 
-    public void Rotate(Quaternion rotation)
+    public IEnumerator Rotate(Quaternion rotation, float rotationTime = 0.2f)
     {
         Vector3 direction;
         float angle;
@@ -30,7 +31,22 @@ public class Rotor : MonoBehaviour
             cube.parent = transform;
         }
 
-        transform.RotateAround(transform.position, direction, angle);
+        float RotationAnglePerFixedUpdate = (angle * Time.fixedDeltaTime) / rotationTime;
+        float RotationAngleAccumulator = 0;
+
+        yield return new WaitForFixedUpdate();
+
+        while (RotationAngleAccumulator < angle)
+        {
+            RotationAnglePerFixedUpdate = Mathf.Min(angle - RotationAngleAccumulator,
+                                                    RotationAnglePerFixedUpdate);
+
+            transform.RotateAround(transform.position, direction, RotationAnglePerFixedUpdate);
+
+            RotationAngleAccumulator += RotationAnglePerFixedUpdate;
+
+            yield return new WaitForFixedUpdate();
+        }
 
         foreach (Transform cube in neighbors)
         {
@@ -38,6 +54,8 @@ public class Rotor : MonoBehaviour
         }
 
         Assert.IsNotNull(GetNeighbors(direction));
+
+        yield return null;
     }
 
     public bool GetRotation(Transform from, Transform to, out Quaternion rotation)
