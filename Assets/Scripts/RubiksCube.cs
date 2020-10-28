@@ -95,22 +95,6 @@ public class RubiksCube : MonoBehaviour
         rotationInfo.Type = RotationInfo.RotationType.NONE;
     }
 
-    private Quaternion GetRotation(Vector3 screenPositionFrom, Vector3 screenPositionTo)
-    {
-        var worldPositionFrom = Camera.main.ScreenToWorldPoint(
-            new Vector3(screenPositionFrom.x, screenPositionFrom.y, Camera.main.nearClipPlane)
-        );
-
-        var worldPositionTo = Camera.main.ScreenToWorldPoint(
-            new Vector3(screenPositionTo.x, screenPositionTo.y, Camera.main.nearClipPlane)
-        );
-
-        var rotation = Quaternion.FromToRotation(worldPositionFrom - transform.position,
-                                                 worldPositionTo - transform.position);
-
-        return rotation;
-    }
-
     private bool RotateRotor(RotationInfo.CubeTouch from, RotationInfo.CubeTouch to)
     {
         if (from.Piece == to.Piece)
@@ -135,7 +119,9 @@ public class RubiksCube : MonoBehaviour
 
     private void RotateCube(Vector3 screenPositionFrom, Vector3 screenPositionTo)
     {
-        var rotation = GetRotation(screenPositionFrom, screenPositionTo);
+        var rotation =
+            Quaternion.FromToRotation(GetWorldPositionOfScreenPosition(screenPositionFrom) - transform.position,
+                                      GetWorldPositionOfScreenPosition(screenPositionTo) - transform.position);
 
         transform.rotation *= rotation;
 
@@ -194,6 +180,13 @@ public class RubiksCube : MonoBehaviour
         }
 
         return false;
+    }
+
+    private Vector3 GetWorldPositionOfScreenPosition(Vector3 screenPosition)
+    {
+        return Camera.main.ScreenToWorldPoint(
+            new Vector3(screenPosition.x, screenPosition.y, Camera.main.nearClipPlane)
+        );
     }
 }
 
