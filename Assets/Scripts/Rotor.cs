@@ -53,6 +53,17 @@ public class Rotor : MonoBehaviour
             cube.parent = RubiksCube;
         }
 
+        Vector3 RoundVector3(Vector3 v) { return new Vector3(Mathf.Round(v.x), Mathf.Round(v.y), Mathf.Round(v.z)); }
+
+        transform.localPosition = RoundVector3(transform.localPosition);
+        transform.localEulerAngles = RoundVector3(transform.localEulerAngles);
+
+        foreach (Transform cube in neighbors)
+        {
+            cube.localPosition = RoundVector3(cube.localPosition);
+            cube.localEulerAngles = RoundVector3(cube.localEulerAngles);
+        }
+
         Assert.IsNotNull(GetNeighbors(direction));
 
         yield return null;
