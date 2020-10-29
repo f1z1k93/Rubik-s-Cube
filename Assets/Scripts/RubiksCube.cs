@@ -10,52 +10,50 @@ public class RubiksCube : MonoBehaviour
 
     private RotationInfo RotationInfo;
 
-    public void OnStartScreenTracking(Vector3 screenPosition)
+    public void OnStartScreenTracking(Vector2 screenPoint)
     {
         Assert.IsNull(RotationInfo);
 
         RotationInfo = new RotationInfo();
-        RotationInfo.ScreenPositionFrom = screenPosition;
-        RotationInfo.CubeTouchFrom = TryGetCubeTouch(screenPosition);
+        RotationInfo.ScreenPointFrom = GetWorldPositionOfScreenPoint(screenPoint);
+        RotationInfo.CubeTouchFrom = TryGetCubeTouch(screenPoint);
         RotationInfo.Type = RotationInfo.CubeTouchFrom is null ? RotationInfo.RotationType.CUBE :
                                                                  RotationInfo.RotationType.ROTOR;
     }
 
-    public void OnContinueScreenTracking(Vector3 screenPosition)
+    public void OnContinueScreenTracking(Vector2 screenPoint)
     {
         Assert.IsNotNull(RotationInfo);
 
-        RotationInfo.ScreenPositionTo = screenPosition;
+        RotationInfo.ScreenPointTo = GetWorldPositionOfScreenPoint(screenPoint);
         if (RotationInfo.Type == RotationInfo.RotationType.ROTOR)
         {
-            RotationInfo.CubeTouchTo = TryGetCubeTouch(screenPosition);
+            RotationInfo.CubeTouchTo = TryGetCubeTouch(screenPoint);
         }
 
         ProcessRotationInfo(RotationInfo);
 
-        RotationInfo.ScreenPositionFrom = screenPosition;
+        RotationInfo.ScreenPointFrom = RotationInfo.ScreenPointTo;
     }
 
-    public void OnStopScreenTracking(Vector3 screenPosition)
+    public void OnStopScreenTracking(Vector2 screenPoint)
     {
         Assert.IsNotNull(RotationInfo);
 
-        RotationInfo.ScreenPositionTo = screenPosition;
+        RotationInfo.ScreenPointTo = GetWorldPositionOfScreenPoint(screenPoint);
         if (RotationInfo.Type == RotationInfo.RotationType.ROTOR)
         {
-            RotationInfo.CubeTouchTo = TryGetCubeTouch(screenPosition);
+            RotationInfo.CubeTouchTo = TryGetCubeTouch(screenPoint);
         }
-
-        RotationInfo.ScreenPositionTo = screenPosition;
 
         ProcessRotationInfo(RotationInfo);
 
         RotationInfo = null;
     }
 
-    private RotationInfo.CubeTouch TryGetCubeTouch(Vector3 screenPosition)
+    private RotationInfo.CubeTouch TryGetCubeTouch(Vector2 screenPoint)
     {
-        var cameraRay = Camera.main.ScreenPointToRay(screenPosition);
+        var cameraRay = Camera.main.ScreenPointToRay(screenPoint);
 
         RaycastHit hit;
         if (Physics.Raycast(cameraRay, out hit))
@@ -78,7 +76,7 @@ public class RubiksCube : MonoBehaviour
 
         if (RotationInfo.Type == RotationInfo.RotationType.CUBE)
         {
-            RotateCube(rotationInfo.ScreenPositionFrom, rotationInfo.ScreenPositionTo);
+            RotateCube(rotationInfo.ScreenPointFrom, rotationInfo.ScreenPointTo);
             return;
         }
 
@@ -117,11 +115,10 @@ public class RubiksCube : MonoBehaviour
         return true;
     }
 
-    private void RotateCube(Vector3 screenPositionFrom, Vector3 screenPositionTo)
+    private void RotateCube(Vector3 screenPointPositionFrom, Vector3 screenPointPositionTo)
     {
-        var rotation =
-            Quaternion.FromToRotation(GetWorldPositionOfScreenPosition(screenPositionFrom) - transform.position,
-                                      GetWorldPositionOfScreenPosition(screenPositionTo) - transform.position);
+        var rotation = Quaternion.FromToRotation(screenPointPositionFrom - transform.position,
+                                                 screenPointPositionTo - transform.position);
 
         transform.rotation *= rotation;
 
@@ -182,10 +179,10 @@ public class RubiksCube : MonoBehaviour
         return false;
     }
 
-    private Vector3 GetWorldPositionOfScreenPosition(Vector3 screenPosition)
+    private Vector3 GetWorldPositionOfScreenPoint(Vector2 screenPoint)
     {
         return Camera.main.ScreenToWorldPoint(
-            new Vector3(screenPosition.x, screenPosition.y, Camera.main.nearClipPlane)
+            new Vector3(screenPoint.x, screenPoint.y, Camera.main.nearClipPlane)
         );
     }
 }
@@ -208,8 +205,8 @@ class RotationInfo
     public CubeTouch CubeTouchFrom = null;
     public CubeTouch CubeTouchTo = null;
 
-    public Vector3 ScreenPositionFrom;
-    public Vector3 ScreenPositionTo;
+    public Vector3 ScreenPointFrom;
+    public Vector3 ScreenPointTo;
 
     public RotationType Type;
 }

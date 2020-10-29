@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class MainController : MonoBehaviour
 {
-    [Serializable] public class TrackEvent : UnityEvent<Vector3> {}
+    [Serializable] public class TrackEvent : UnityEvent<Vector2> {}
 
     [SerializeField] private TrackEvent StartTrackEvent;
     [SerializeField] private TrackEvent ContinueTrackEvent;
@@ -86,17 +86,16 @@ class TouchScreenTracker : ScreenTracker
         if (Input.touchCount > 0)
         {
             var touch = Input.GetTouch(0);
-            Vector3 screenPosition = touch.position;
 
             switch (touch.phase) {
                 case TouchPhase.Began:
-                    StartScreenTrack(screenPosition);
+                    StartScreenTrack(touch.position);
                     break;
                 case TouchPhase.Moved:
-                    ContinueScreenTrack(screenPosition);
+                    ContinueScreenTrack(touch.position);
                     break;
                 case TouchPhase.Ended:
-                    StopScreenTrack(screenPosition);
+                    StopScreenTrack(touch.position);
                     break;
                 default:
                     break;
