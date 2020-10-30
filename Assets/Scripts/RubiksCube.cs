@@ -85,7 +85,7 @@ public class RubiksCube : MonoBehaviour
             return;
         }
 
-        if (!RotateRotor(rotationInfo.CubeTouchFrom, rotationInfo.CubeTouchTo))
+        if (!RotatePanel(rotationInfo.CubeTouchFrom, rotationInfo.CubeTouchTo))
         {
             return;
         }
@@ -93,7 +93,7 @@ public class RubiksCube : MonoBehaviour
         rotationInfo.Type = RotationInfo.RotationType.NONE;
     }
 
-    private bool RotateRotor(RotationInfo.CubeTouch from, RotationInfo.CubeTouch to)
+    private bool RotatePanel(RotationInfo.CubeTouch from, RotationInfo.CubeTouch to)
     {
         if (from.Piece == to.Piece)
         {
@@ -148,13 +148,13 @@ public class RubiksCube : MonoBehaviour
         float angle;
         rotation.ToAngleAxis(out angle, out dir);
 
-        if (Vector3.Distance(dir, transform.up) < Vector3.kEpsilon || Vector3.Distance(dir, -transform.up) < Vector3.kEpsilon) {
+        if (dir == transform.up || dir == -transform.up) {
             return !(IsPointOnAxisPerpendicularCubeFaces(pointFrom, transform.up) ||
                      IsPointOnAxisPerpendicularCubeFaces(pointTo, transform.up));
-        } else if (Vector3.Distance(dir, transform.right) < Vector3.kEpsilon || Vector3.Distance(dir, -transform.right) < Vector3.kEpsilon) {
+        } else if (dir == transform.right || dir == -transform.right) {
             return !(IsPointOnAxisPerpendicularCubeFaces(pointFrom, transform.right) ||
                      IsPointOnAxisPerpendicularCubeFaces(pointTo, transform.right));
-        } else if (Vector3.Distance(dir, transform.forward) < Vector3.kEpsilon || Vector3.Distance(dir, -transform.forward) < Vector3.kEpsilon) {
+        } else if (dir == transform.forward || dir == -transform.forward) {
             return !(IsPointOnAxisPerpendicularCubeFaces(pointFrom, transform.forward) ||
                      IsPointOnAxisPerpendicularCubeFaces(pointTo, transform.forward));
         }
