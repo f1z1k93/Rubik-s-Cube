@@ -66,6 +66,16 @@ public class RubiksCube : MonoBehaviour
         RotationInfo = null;
     }
 
+    public void OnShuffling()
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        RotateRandomPanel();
+    }
+
     private RotationInfo.CubeTouch TryGetCubeTouch(Vector2 screenPoint)
     {
         var cameraRay = Camera.main.ScreenPointToRay(screenPoint);
@@ -128,6 +138,17 @@ public class RubiksCube : MonoBehaviour
         StartCoroutine(AnimatePanelRotation(rotor, rotation));
 
         return true;
+    }
+
+    private void RotateRandomPanel()
+    {
+        var rotor = Rotors[Random.Range(0, Rotors.Count)];
+        var rotation = Quaternion.identity;
+        rotor.GetRandomRotation(out rotation);
+
+        StartCoroutine(AnimatePanelRotation(rotor, rotation));
+
+        return;
     }
 
     private IEnumerator AnimatePanelRotation(Rotor rotor, Quaternion rotation)

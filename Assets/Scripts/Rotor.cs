@@ -65,6 +65,13 @@ public class Rotor : MonoBehaviour
         return false;
     }
 
+    public void GetRandomRotation(out Quaternion rotation)
+    {
+        var axis = Axes[Random.Range(0, Axes.Count)];
+
+        rotation = Quaternion.AngleAxis(RotationAngle, GetDirectionByAxis(axis));
+    }
+
     private List<Transform> GetNeighbors(Vector3 axis)
     {
         var neighbors = new List<Transform>();
