@@ -2,17 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
+using IEnumerator = System.Collections.IEnumerator;
+using Random = UnityEngine.Random;
 
 public class RubiksCube : MonoBehaviour
 {
     [SerializeField] float EdgeLength; // TODO: remove it
     [SerializeField] List<Rotor> Rotors;
+    [SerializeField] float PlaneRotationTime;
 
     private RotationInfo RotationInfo;
+    private bool IsBusy = false;
 
     public void OnStartScreenTracking(Vector2 screenPoint)
     {
         Assert.IsNull(RotationInfo);
+
+        if (IsBusy)
+        {
+            return;
+        }
 
         RotationInfo = new RotationInfo();
         RotationInfo.ScreenPointFrom = GetWorldPositionOfScreenPoint(screenPoint);
@@ -23,7 +32,10 @@ public class RubiksCube : MonoBehaviour
 
     public void OnContinueScreenTracking(Vector2 screenPoint)
     {
-        Assert.IsNotNull(RotationInfo);
+        if (RotationInfo is null)
+        {
+            return;
+        }
 
         RotationInfo.ScreenPointTo = GetWorldPositionOfScreenPoint(screenPoint);
         if (RotationInfo.Type == RotationInfo.RotationType.ROTOR)
@@ -38,7 +50,10 @@ public class RubiksCube : MonoBehaviour
 
     public void OnStopScreenTracking(Vector2 screenPoint)
     {
-        Assert.IsNotNull(RotationInfo);
+        if (RotationInfo is null)
+        {
+            return;
+        }
 
         RotationInfo.ScreenPointTo = GetWorldPositionOfScreenPoint(screenPoint);
         if (RotationInfo.Type == RotationInfo.RotationType.ROTOR)
@@ -110,9 +125,23 @@ public class RubiksCube : MonoBehaviour
         var rotor = rotorAndRotation.Item1;
         var rotation = rotorAndRotation.Item2;
 
-        StartCoroutine(rotor.Rotate(rotation));
+        StartCoroutine(AnimatePanelRotation(rotor, rotation));
 
         return true;
+    }
+
+    private IEnumerator AnimatePanelRotation(Rotor rotor, Quaternion rotation)
+    {
+        Assert.IsFalse(IsBusy);
+        Assert.IsTrue(PlaneRotationTime >= 0f);
+
+        IsBusy = true;
+
+        yield return StartCoroutine(rotor.AnimateRotation(rotation, PlaneRotationTime));
+
+        IsBusy = false;
+
+        yield break;
     }
 
     private void RotateCube(Vector3 screenPointPositionFrom, Vector3 screenPointPositionTo)

@@ -16,57 +16,17 @@ public class Rotor : MonoBehaviour
         RubiksCube = transform.parent;
     }
 
-    public IEnumerator Rotate(Quaternion rotation, float rotationTime = 0.2f)
+    public IEnumerator AnimateRotation(Quaternion rotation, float rotationTime)
     {
-        Vector3 direction;
-        float angle;
-        rotation.ToAngleAxis(out angle, out direction);
+        var animation = new RotorAnimation(this);
 
-        var neighbors = GetNeighbors(direction);
+        animation.Prepare(rotation, rotationTime);
 
-        Assert.IsNotNull(neighbors);
+        yield return StartCoroutine(animation.Run());
 
-        foreach (Transform cube in neighbors)
-        {
-            cube.parent = transform;
-        }
+        animation.Release();
 
-        float RotationAnglePerFixedUpdate = (angle * Time.fixedDeltaTime) / rotationTime;
-        float RotationAngleAccumulator = 0;
-
-        yield return new WaitForFixedUpdate();
-
-        while (RotationAngleAccumulator < angle)
-        {
-            RotationAnglePerFixedUpdate = Mathf.Min(angle - RotationAngleAccumulator,
-                                                    RotationAnglePerFixedUpdate);
-
-            transform.RotateAround(transform.position, direction, RotationAnglePerFixedUpdate);
-
-            RotationAngleAccumulator += RotationAnglePerFixedUpdate;
-
-            yield return new WaitForFixedUpdate();
-        }
-
-        foreach (Transform cube in neighbors)
-        {
-            cube.parent = RubiksCube;
-        }
-
-        Vector3 RoundVector3(Vector3 v) { return new Vector3(Mathf.Round(v.x), Mathf.Round(v.y), Mathf.Round(v.z)); }
-
-        transform.localPosition = RoundVector3(transform.localPosition);
-        transform.localEulerAngles = RoundVector3(transform.localEulerAngles);
-
-        foreach (Transform cube in neighbors)
-        {
-            cube.localPosition = RoundVector3(cube.localPosition);
-            cube.localEulerAngles = RoundVector3(cube.localEulerAngles);
-        }
-
-        Assert.IsNotNull(GetNeighbors(direction));
-
-        yield return null;
+        yield break;
     }
 
     public bool GetRotation(Transform from, Transform to, out Quaternion rotation)
@@ -147,5 +107,84 @@ public class Rotor : MonoBehaviour
         Assert.IsTrue(false);
 
         return Vector3.zero;
+    }
+
+    private class RotorAnimation
+    {
+        public RotorAnimation(Rotor rotor)
+        {
+            Rotor = rotor;
+        }
+
+        public void Prepare(Quaternion rotation, float rotationTime)
+        {
+            RotationTime = rotationTime;
+
+            rotation.ToAngleAxis(out RotationAngle, out RotationDirection);
+
+            RotorNeighbors = Rotor.GetNeighbors(RotationDirection);
+
+            Assert.IsNotNull(RotorNeighbors);
+
+            foreach (Transform neighbor in RotorNeighbors)
+            {
+                neighbor.parent = Rotor.transform;
+            }
+
+            RotationAnglePerSecond = RotationAngle / RotationTime;
+        }
+
+        public IEnumerator Run()
+        {
+            float rotationAngleAccumulator = 0;
+
+            while (true)
+            {
+                var ExpectedRotationAnglePerFrame = RotationAnglePerSecond * Time.deltaTime;
+
+                var RotationAnglePerFrame = Mathf.Min(RotationAngle - rotationAngleAccumulator,
+                                                      ExpectedRotationAnglePerFrame);
+
+                Rotor.transform.RotateAround(Rotor.transform.position, RotationDirection, RotationAnglePerFrame);
+
+                rotationAngleAccumulator += RotationAnglePerFrame;
+
+                if (rotationAngleAccumulator >= RotationAngle)
+                {
+                    yield break;
+                }
+
+                yield return null;
+            }
+        }
+
+        public void Release()
+        {
+            foreach (var neighbor in RotorNeighbors)
+            {
+                neighbor.parent = Rotor.RubiksCube;
+            }
+
+            // We should align panel after each rotation
+            Vector3 RoundVector3(Vector3 v) { return new Vector3(Mathf.Round(v.x), Mathf.Round(v.y), Mathf.Round(v.z)); }
+
+            Rotor.transform.localPosition = RoundVector3(Rotor.transform.localPosition);
+            Rotor.transform.localEulerAngles = RoundVector3(Rotor.transform.localEulerAngles);
+
+            foreach (Transform neighbor in RotorNeighbors)
+            {
+                neighbor.localPosition = RoundVector3(neighbor.localPosition);
+                neighbor.localEulerAngles = RoundVector3(neighbor.localEulerAngles);
+            }
+
+            Assert.IsNotNull(Rotor.GetNeighbors(RotationDirection));
+        }
+
+        private Rotor Rotor;
+        private float RotationTime;
+        private Vector3 RotationDirection;
+        private float RotationAngle;
+        private float RotationAnglePerSecond;
+        private List<Transform> RotorNeighbors;
     }
 }

@@ -2131,6 +2131,7 @@ MonoBehaviour:
   - {fileID: 1601551194}
   - {fileID: 2023601189}
   - {fileID: 1979250857}
+  PlaneRotationTime: 0.2
 --- !u!4 &1270517925
 Transform:
   m_ObjectHideFlags: 0
