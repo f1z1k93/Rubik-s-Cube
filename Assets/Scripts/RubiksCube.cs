@@ -13,6 +13,12 @@ public class RubiksCube : MonoBehaviour
 
     private RotationInfo RotationInfo;
     private bool IsBusy = false;
+    private Stack<Tuple<Rotor, Quaternion>> Modifications;
+
+    private void Start()
+    {
+        Modifications = new Stack<Tuple<Rotor, Quaternion>>();
+    }
 
     public void OnStartScreenTracking(Vector2 screenPoint)
     {
@@ -76,6 +82,32 @@ public class RubiksCube : MonoBehaviour
         RotateRandomPanel();
     }
 
+    public void OnModificationReverting()
+    {
+        if (IsBusy)
+        {
+            return;
+        }
+
+        if (Modifications.Count == 0)
+        {
+            return;
+        }
+
+        var rotorAndRotation = Modifications.Pop();
+
+        var rotor = rotorAndRotation.Item1;
+        var rotation = rotorAndRotation.Item2;
+
+        Vector3 axis;
+        float angle;
+        rotation.ToAngleAxis(out angle, out axis);
+
+        var revertedRotation = Quaternion.AngleAxis(-angle, axis);
+
+        StartCoroutine(AnimatePanelRotation(rotor, revertedRotation));
+    }
+
     private RotationInfo.CubeTouch TryGetCubeTouch(Vector2 screenPoint)
     {
         var cameraRay = Camera.main.ScreenPointToRay(screenPoint);
@@ -131,6 +163,8 @@ public class RubiksCube : MonoBehaviour
         {
             return false;
         }
+
+        Modifications.Push(rotorAndRotation);
 
         var rotor = rotorAndRotation.Item1;
         var rotation = rotorAndRotation.Item2;
