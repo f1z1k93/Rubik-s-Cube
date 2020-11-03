@@ -35,7 +35,8 @@ public class Rotor : MonoBehaviour
 
         foreach (var axis in Axes)
         {
-            var neighbors = GetNeighbors(GetDirectionByAxis(axis));
+            var worldAxis = transform.TransformDirection(axis);
+            var neighbors = GetNeighbors(worldAxis);
 
             if (neighbors is null)
             {
@@ -53,10 +54,11 @@ public class Rotor : MonoBehaviour
 
             if (isFromNeighborFound && isToNeighborFound)
             {
-                var rotationAxis = Vector3.Cross(from.position - transform.position,
-                                                 to.position - transform.position);
+                var worldAxisForRotationFromTo = Vector3.Cross(from.position - transform.position,
+                                                               to.position - transform.position);
+                var angle = RotationAngle * Mathf.Sign(Vector3.Dot(worldAxisForRotationFromTo, worldAxis));
 
-                rotation = Quaternion.AngleAxis(RotationAngle, rotationAxis);
+                rotation = Quaternion.AngleAxis(angle, axis);
 
                 return true;
             }
@@ -69,7 +71,7 @@ public class Rotor : MonoBehaviour
     {
         var axis = Axes[Random.Range(0, Axes.Count)];
 
-        rotation = Quaternion.AngleAxis(RotationAngle, GetDirectionByAxis(axis));
+        rotation = Quaternion.AngleAxis(RotationAngle, axis);
     }
 
     private List<Transform> GetNeighbors(Vector3 axis)
@@ -94,28 +96,6 @@ public class Rotor : MonoBehaviour
         return neighbors;
     }
 
-    private Vector3 GetDirectionByAxis(Vector3 axis)
-    {
-        if (axis == Vector3.right)
-        {
-            return transform.right;
-        }
-
-        if (axis == Vector3.up)
-        {
-            return transform.up;
-        }
-
-        if (axis == Vector3.forward)
-        {
-            return transform.forward;
-        }
-
-        Assert.IsTrue(false);
-
-        return Vector3.zero;
-    }
-
     private class RotorAnimation
     {
         public RotorAnimation(Rotor rotor)
@@ -125,11 +105,13 @@ public class Rotor : MonoBehaviour
 
         public void Prepare(Quaternion rotation, float rotationTime)
         {
+            Vector3 localAxis;
+            rotation.ToAngleAxis(out RotationAngle, out localAxis);
+
+            RotationAxis = Rotor.transform.TransformDirection(localAxis);
             RotationTime = rotationTime;
-
-            rotation.ToAngleAxis(out RotationAngle, out RotationDirection);
-
-            RotorNeighbors = Rotor.GetNeighbors(RotationDirection);
+            RotorNeighbors = Rotor.GetNeighbors(RotationAxis);
+            RotationAnglePerSecond = RotationAngle / RotationTime;
 
             Assert.IsNotNull(RotorNeighbors);
 
@@ -137,8 +119,6 @@ public class Rotor : MonoBehaviour
             {
                 neighbor.parent = Rotor.transform;
             }
-
-            RotationAnglePerSecond = RotationAngle / RotationTime;
         }
 
         public IEnumerator Run()
@@ -152,7 +132,7 @@ public class Rotor : MonoBehaviour
                 var RotationAnglePerFrame = Mathf.Min(RotationAngle - rotationAngleAccumulator,
                                                       ExpectedRotationAnglePerFrame);
 
-                Rotor.transform.RotateAround(Rotor.transform.position, RotationDirection, RotationAnglePerFrame);
+                Rotor.transform.RotateAround(Rotor.transform.position, RotationAxis, RotationAnglePerFrame);
 
                 rotationAngleAccumulator += RotationAnglePerFrame;
 
@@ -184,12 +164,12 @@ public class Rotor : MonoBehaviour
                 neighbor.localEulerAngles = RoundVector3(neighbor.localEulerAngles);
             }
 
-            Assert.IsNotNull(Rotor.GetNeighbors(RotationDirection));
+            Assert.IsNotNull(Rotor.GetNeighbors(RotationAxis));
         }
 
         private Rotor Rotor;
         private float RotationTime;
-        private Vector3 RotationDirection;
+        private Vector3 RotationAxis;
         private float RotationAngle;
         private float RotationAnglePerSecond;
         private List<Transform> RotorNeighbors;

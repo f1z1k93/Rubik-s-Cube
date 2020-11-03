@@ -182,9 +182,8 @@ public class RubiksCube : MonoBehaviour
             var rotation = Quaternion.identity;
 
             if (rotor.GetRotation(from.Piece, to.Piece, out rotation) &&
-                IsRotationFound(rotation, from.Point, to.Point)
-            ) {
-                
+                IsRotorRotationFound(rotor, rotation, from.Point, to.Point))
+            {
                 return new Tuple<Rotor, Quaternion>(rotor, rotation);
             }
         }
@@ -192,26 +191,16 @@ public class RubiksCube : MonoBehaviour
         return null;
     }
 
-    private bool IsRotationFound(Quaternion rotation, Vector3 pointFrom, Vector3 pointTo)
+    private bool IsRotorRotationFound(Rotor rotor, Quaternion rotation, Vector3 pointFrom, Vector3 pointTo)
     {
-        Vector3 dir;
+        Vector3 localAxis;
         float angle;
-        rotation.ToAngleAxis(out angle, out dir);
+        rotation.ToAngleAxis(out angle, out localAxis);
 
-        if (dir == transform.up || dir == -transform.up) {
-            return !(IsPointOnAxisPerpendicularCubeFaces(pointFrom, transform.up) ||
-                     IsPointOnAxisPerpendicularCubeFaces(pointTo, transform.up));
-        } else if (dir == transform.right || dir == -transform.right) {
-            return !(IsPointOnAxisPerpendicularCubeFaces(pointFrom, transform.right) ||
-                     IsPointOnAxisPerpendicularCubeFaces(pointTo, transform.right));
-        } else if (dir == transform.forward || dir == -transform.forward) {
-            return !(IsPointOnAxisPerpendicularCubeFaces(pointFrom, transform.forward) ||
-                     IsPointOnAxisPerpendicularCubeFaces(pointTo, transform.forward));
-        }
+        var worldAxis = rotor.transform.TransformDirection(localAxis);
 
-        Assert.IsTrue(false);
-
-        return false;
+        return !(IsPointOnAxisPerpendicularCubeFaces(pointFrom, worldAxis) ||
+                 IsPointOnAxisPerpendicularCubeFaces(pointTo, worldAxis));
     }
 
     private bool IsPointOnAxisPerpendicularCubeFaces(Vector3 point, Vector3 axis)
