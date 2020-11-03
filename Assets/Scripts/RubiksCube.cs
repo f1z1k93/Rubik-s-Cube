@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Events;
 using IEnumerator = System.Collections.IEnumerator;
 using Random = UnityEngine.Random;
 
@@ -10,6 +11,9 @@ public class RubiksCube : MonoBehaviour
     [SerializeField] float EdgeLength; // TODO: remove it
     [SerializeField] List<Rotor> Rotors;
     [SerializeField] float PlaneRotationTime;
+    [SerializeField] UnityEvent IsSolvedEvent;
+
+    public Piece[] Pieces;
 
     private RotationInfo RotationInfo;
     private bool IsBusy = false;
@@ -18,6 +22,7 @@ public class RubiksCube : MonoBehaviour
     private void Start()
     {
         Modifications = new Stack<Tuple<Rotor, Quaternion>>();
+        Pieces = transform.GetComponentsInChildren<Piece>();
     }
 
     public void OnStartScreenTracking(Vector2 screenPoint)
@@ -169,7 +174,7 @@ public class RubiksCube : MonoBehaviour
         var rotor = rotorAndRotation.Item1;
         var rotation = rotorAndRotation.Item2;
 
-        StartCoroutine(AnimatePanelRotation(rotor, rotation));
+        StartCoroutine(AnimatePanelRotationAndCheckSolved(rotor, rotation));
 
         return true;
     }
@@ -199,6 +204,17 @@ public class RubiksCube : MonoBehaviour
         yield break;
     }
 
+    private IEnumerator AnimatePanelRotationAndCheckSolved(Rotor rotor, Quaternion rotation)
+    {
+        yield return AnimatePanelRotation(rotor, rotation);
+
+        if (IsSolved())
+        {
+            Modifications.Clear();
+            IsSolvedEvent.Invoke();
+        }
+    }
+
     private void RotateCube(Vector3 screenPointPositionFrom, Vector3 screenPointPositionTo)
     {
         var rotation = Quaternion.FromToRotation(screenPointPositionFrom - transform.position,
@@ -207,6 +223,24 @@ public class RubiksCube : MonoBehaviour
         transform.rotation *= rotation;
 
         return;
+    }
+
+    private bool IsSolved()
+    {
+        foreach (var rotor in Rotors)
+        {
+            if (rotor.FaceColor == Piece.FaceColor.NONE)
+            {
+                continue;
+            }
+
+            if (!rotor.IsPanelSolved())
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private Tuple<Rotor, Quaternion> FindRotorAndRotation(RotationInfo.CubeTouch from, RotationInfo.CubeTouch to)

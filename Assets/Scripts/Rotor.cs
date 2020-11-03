@@ -6,14 +6,15 @@ using UnityEngine.Assertions;
 public class Rotor : MonoBehaviour
 {
     [SerializeField] private List<Vector3> Axes;
+    [SerializeField] public Piece.FaceColor FaceColor;
 
     private const float RotationAngle = 90f;
 
-    private Transform RubiksCube;
+    private RubiksCube RubiksCube;
 
     void Start()
     {
-        RubiksCube = transform.parent;
+        RubiksCube = transform.parent.GetComponent<RubiksCube>();
     }
 
     public IEnumerator AnimateRotation(Quaternion rotation, float rotationTime)
@@ -74,14 +75,14 @@ public class Rotor : MonoBehaviour
         rotation = Quaternion.AngleAxis(RotationAngle, axis);
     }
 
-    private List<Transform> GetNeighbors(Vector3 axis)
+    private List<Piece> GetNeighbors(Vector3 axis)
     {
-        var neighbors = new List<Transform>();
+        var neighbors = new List<Piece>();
         var axisPlane = new Plane(axis, transform.position);
         
-        foreach (Transform piece in RubiksCube)
+        foreach (var piece in RubiksCube.Pieces)
         {
-            if (piece.transform.transform != transform &&
+            if (piece.transform != transform &&
                 Mathf.Abs(axisPlane.GetDistanceToPoint(piece.transform.position)) < Vector3.kEpsilon)
             {
                 neighbors.Add(piece);
@@ -94,6 +95,23 @@ public class Rotor : MonoBehaviour
         }
 
         return neighbors;
+    }
+
+    public bool IsPanelSolved()
+    {
+        var neighbors = GetNeighbors(transform.TransformDirection(Axes[0]));
+
+        Assert.IsNotNull(neighbors);
+
+        foreach (var neighbor in neighbors)
+        {
+            if (!neighbor.FaceColors.Contains(FaceColor))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private class RotorAnimation
@@ -115,9 +133,9 @@ public class Rotor : MonoBehaviour
 
             Assert.IsNotNull(RotorNeighbors);
 
-            foreach (Transform neighbor in RotorNeighbors)
+            foreach (var neighbor in RotorNeighbors)
             {
-                neighbor.parent = Rotor.transform;
+                neighbor.transform.parent = Rotor.transform;
             }
         }
 
@@ -149,7 +167,7 @@ public class Rotor : MonoBehaviour
         {
             foreach (var neighbor in RotorNeighbors)
             {
-                neighbor.parent = Rotor.RubiksCube;
+                neighbor.transform.parent = Rotor.RubiksCube.transform;
             }
 
             // We should align panel after each rotation
@@ -158,10 +176,10 @@ public class Rotor : MonoBehaviour
             Rotor.transform.localPosition = RoundVector3(Rotor.transform.localPosition);
             Rotor.transform.localEulerAngles = RoundVector3(Rotor.transform.localEulerAngles);
 
-            foreach (Transform neighbor in RotorNeighbors)
+            foreach (var neighbor in RotorNeighbors)
             {
-                neighbor.localPosition = RoundVector3(neighbor.localPosition);
-                neighbor.localEulerAngles = RoundVector3(neighbor.localEulerAngles);
+                neighbor.transform.localPosition = RoundVector3(neighbor.transform.localPosition);
+                neighbor.transform.localEulerAngles = RoundVector3(neighbor.transform.localEulerAngles);
             }
 
             Assert.IsNotNull(Rotor.GetNeighbors(RotationAxis));
@@ -172,6 +190,6 @@ public class Rotor : MonoBehaviour
         private Vector3 RotationAxis;
         private float RotationAngle;
         private float RotationAnglePerSecond;
-        private List<Transform> RotorNeighbors;
+        private List<Piece> RotorNeighbors;
     }
 }
