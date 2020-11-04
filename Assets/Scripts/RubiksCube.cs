@@ -17,6 +17,7 @@ public class RubiksCube : MonoBehaviour
 
     private RotationInfo RotationInfo;
     private bool IsBusy = false;
+    private bool IsShuffled = false;
     private Stack<Tuple<Rotor, Quaternion>> Modifications;
 
     private void Start()
@@ -84,7 +85,14 @@ public class RubiksCube : MonoBehaviour
             return;
         }
 
+        IsShuffled = true;
+
         RotateRandomPanel();
+    }
+
+    public void OnShuffleBottonDown()
+    {
+        Modifications.Clear();
     }
 
     public void OnModificationReverting()
@@ -207,6 +215,13 @@ public class RubiksCube : MonoBehaviour
     private IEnumerator AnimatePanelRotationAndCheckSolved(Rotor rotor, Quaternion rotation)
     {
         yield return AnimatePanelRotation(rotor, rotation);
+
+        if (!IsShuffled)
+        {
+            yield break;
+        }
+
+        IsShuffled = true;
 
         if (IsSolved())
         {
