@@ -232,10 +232,10 @@ public class RubiksCube : MonoBehaviour
 
     private void RotateCube(Vector3 screenPointPositionFrom, Vector3 screenPointPositionTo)
     {
-        var rotation = Quaternion.FromToRotation(screenPointPositionFrom - transform.position,
+        var fromToRotation = Quaternion.FromToRotation(screenPointPositionFrom - transform.position,
                                                  screenPointPositionTo - transform.position);
 
-        transform.rotation *= rotation;
+        transform.rotation = fromToRotation * transform.rotation;
 
         return;
     }
