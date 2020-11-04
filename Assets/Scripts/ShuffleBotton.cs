@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 public class ShuffleBotton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     [SerializeField] UnityEvent ShuffleBottonDownEvent;
+    [SerializeField] UnityEvent ShuffleBottonUpEvent;
 
     private bool IsDown = false;
 
@@ -24,5 +25,6 @@ public class ShuffleBotton : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     public void OnPointerUp(PointerEventData eventData)
     {
         IsDown = false;
+        ShuffleBottonUpEvent.Invoke();
     }
 }
