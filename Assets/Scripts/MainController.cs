@@ -12,6 +12,7 @@ public class MainController : MonoBehaviour
     [SerializeField] private TrackEvent StopTrackEvent;
 
     private ScreenTracker ScreenTracker = null;
+    private bool IsPause = false;
 
     private void Start()
     {
@@ -37,7 +38,22 @@ public class MainController : MonoBehaviour
 
     void Update()
     {
+        if (IsPause)
+        {
+            return;
+        }
+
         ScreenTracker.UpdateTrack();
+    }
+
+    public void OnPause()
+    {
+        IsPause = true;
+    }
+
+    public void OnResume()
+    {
+        IsPause = false;
     }
 }
 

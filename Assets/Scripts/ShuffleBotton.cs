@@ -9,6 +9,7 @@ public class ShuffleBotton : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
     [SerializeField] UnityEvent ShuffleBottonUpEvent;
 
     private bool IsDown = false;
+    private bool IsPause = false;
 
     private void Update()
     {
@@ -20,13 +21,33 @@ public class ShuffleBotton : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (IsPause)
+        {
+            return;
+        }
+
         IsDown = true;
         ShuffleBottonDownEvent.Invoke();
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (IsPause)
+        {
+            return;
+        }
+
         IsDown = false;
         ShuffleBottonUpEvent.Invoke();
+    }
+
+    public void OnPause()
+    {
+        IsPause = true;
+    }
+
+    public void OnResume()
+    {
+        IsPause = false;
     }
 }
