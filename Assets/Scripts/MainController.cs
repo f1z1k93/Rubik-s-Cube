@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 public class MainController : MonoBehaviour
 {
@@ -12,7 +13,6 @@ public class MainController : MonoBehaviour
     [SerializeField] private TrackEvent StopTrackEvent;
 
     private ScreenTracker ScreenTracker = null;
-    private bool IsPause = false;
 
     private void Start()
     {
@@ -31,40 +31,85 @@ public class MainController : MonoBehaviour
 
         Assert.IsNotNull(ScreenTracker);
 
-        ScreenTracker.StartScreenTrack = (Vector3 pos) => StartTrackEvent.Invoke(pos);
-        ScreenTracker.ContinueScreenTrack = (Vector3 pos) => ContinueTrackEvent.Invoke(pos);
-        ScreenTracker.StopScreenTrack = (Vector3 pos) => StopTrackEvent.Invoke(pos);
+        ScreenTracker.StartScreenTrackEvent = StartTrackEvent;
+        ScreenTracker.ContinueScreenTrackEvent = ContinueTrackEvent;
+        ScreenTracker.StopScreenTrackEvent = StopTrackEvent;
     }
 
     void Update()
     {
-        if (IsPause)
-        {
-            return;
-        }
-
         ScreenTracker.UpdateTrack();
     }
 
     public void OnPause()
     {
-        IsPause = true;
+        ScreenTracker.Pause();
     }
-
     public void OnResume()
     {
-        IsPause = false;
+        ScreenTracker.Resume();
     }
 }
 
 class ScreenTracker
 {
-    public Action<Vector3> StartScreenTrack;
-    public Action<Vector3> ContinueScreenTrack;
-    public Action<Vector3> StopScreenTrack;
+    public MainController.TrackEvent StartScreenTrackEvent;
+    public MainController.TrackEvent ContinueScreenTrackEvent;
+    public MainController.TrackEvent StopScreenTrackEvent;
+
+    private bool IsNeedEmitTrackEvent = false;
+    private bool IsPause = false;
 
     public virtual void UpdateTrack()
     {
+    }
+
+    public void Pause()
+    {
+        IsPause = true;
+    }
+
+    public void Resume()
+    {
+        IsPause = false;
+    }
+
+    protected void StartScreenTrack(Vector2 screenPoint, int touchId = -1)
+    {
+        if (IsPointOnUI(touchId) || IsPause)
+        {
+            IsNeedEmitTrackEvent = false;
+            return;
+        }
+
+        IsNeedEmitTrackEvent = true;
+
+        StartScreenTrackEvent.Invoke(screenPoint);
+    }
+
+    protected void ContinueScreenTrack(Vector2 screenPoint, int touchId = -1)
+    {
+        if (!IsNeedEmitTrackEvent)
+        {
+            return;
+        }
+
+        ContinueScreenTrackEvent.Invoke(screenPoint);
+    }
+
+    protected void StopScreenTrack(Vector2 screenPoint, int touchId = -1)
+    {
+        if (!IsNeedEmitTrackEvent)
+        {
+            return;
+        }
+
+        StopScreenTrackEvent.Invoke(screenPoint);
+    }
+
+    private bool IsPointOnUI(int touchId)
+    {
+        return EventSystem.current.IsPointerOverGameObject(touchId);
     }
 }
 
@@ -95,6 +140,7 @@ class MouseScreenTracker : ScreenTracker
         }
     }
 }
+
 class TouchScreenTracker : ScreenTracker
 {
     public override void UpdateTrack()
