@@ -2,9 +2,11 @@
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class RevertPlaneRotationBotton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class ShuffleButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    [SerializeField] UnityEvent DownEvent;
+    [SerializeField] UnityEvent ShuffleButtonDownEvent;
+    [SerializeField] UnityEvent ShuffleButtonHeldDownEvent;
+    [SerializeField] UnityEvent ShuffleButtonUpEvent;
 
     private bool IsDown = false;
     private bool IsPause = false;
@@ -13,7 +15,7 @@ public class RevertPlaneRotationBotton : MonoBehaviour, IPointerDownHandler, IPo
     {
         if (IsDown)
         {
-            DownEvent.Invoke();
+            ShuffleButtonHeldDownEvent.Invoke();
         }
     }
 
@@ -25,6 +27,7 @@ public class RevertPlaneRotationBotton : MonoBehaviour, IPointerDownHandler, IPo
         }
 
         IsDown = true;
+        ShuffleButtonDownEvent.Invoke();
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -35,6 +38,7 @@ public class RevertPlaneRotationBotton : MonoBehaviour, IPointerDownHandler, IPo
         }
 
         IsDown = false;
+        ShuffleButtonUpEvent.Invoke();
     }
 
     public void OnPause()

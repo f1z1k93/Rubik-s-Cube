@@ -1563,11 +1563,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ffc5ed46b16d1c4f9f089b1cdc6d385, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShuffleBottonDownEvent:
+  ShuffleButtonDownEvent:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1480843348}
-        m_MethodName: OnShuffleBottonDown
+        m_MethodName: OnShuffleButtonDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1578,7 +1578,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 1270517924}
-        m_MethodName: OnShuffleBottonDown
+        m_MethodName: OnShuffleButtonDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1588,7 +1588,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  ShuffleBottonHeldDownEvent:
+  ShuffleButtonHeldDownEvent:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1270517924}
@@ -1602,11 +1602,11 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  ShuffleBottonUpEvent:
+  ShuffleButtonUpEvent:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1480843348}
-        m_MethodName: OnShuffleBottonUp
+        m_MethodName: OnShuffleButtonUp
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2725,7 +2725,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1135718060}
-        m_MethodName: OnPauseBottonClick
+        m_MethodName: OnPauseButtonClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

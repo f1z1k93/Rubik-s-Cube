@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 
-public class PauseBotton : MonoBehaviour
+public class PauseButton : MonoBehaviour
 {
     [SerializeField] private UnityEvent PauseEvent;
     [SerializeField] private UnityEvent ResumeEvent;
@@ -21,7 +21,7 @@ public class PauseBotton : MonoBehaviour
         }
     }
 
-    public void OnPauseBottonClick()
+    public void OnPauseButtonClick()
     {
         IsPause = !IsPause;
     }

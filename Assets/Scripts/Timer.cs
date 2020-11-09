@@ -19,13 +19,13 @@ public class Timer : MonoBehaviour
             tupleMinSecMillisec.Item1, tupleMinSecMillisec.Item2, tupleMinSecMillisec.Item3);
     }
 
-    public void OnShuffleBottonDown()
+    public void OnShuffleButtonDown()
     {
         ResetTimer();
         IsRunning = false;
     }
 
-    public void OnShuffleBottonUp()
+    public void OnShuffleButtonUp()
     {
         ResetTimer();
         IsRunning = true;

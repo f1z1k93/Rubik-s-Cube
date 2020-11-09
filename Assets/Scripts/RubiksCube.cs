@@ -90,7 +90,7 @@ public class RubiksCube : MonoBehaviour
         RotateRandomPanel();
     }
 
-    public void OnShuffleBottonDown()
+    public void OnShuffleButtonDown()
     {
         Modifications.Clear();
     }
