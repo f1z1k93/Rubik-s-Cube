@@ -1,6 +1,6 @@
 ﻿using System;
+using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
@@ -8,57 +8,70 @@ public class MainController : MonoBehaviour
 {
     [Serializable] public class TrackEvent : UnityEvent<Vector2> {}
 
-    [SerializeField] private TrackEvent StartTrackEvent;
-    [SerializeField] private TrackEvent ContinueTrackEvent;
-    [SerializeField] private TrackEvent StopTrackEvent;
+    [SerializeField, CanBeNull] private TrackEvent StartTrackEvent;
+    [SerializeField, CanBeNull] private TrackEvent ContinueTrackEvent;
+    [SerializeField, CanBeNull] private TrackEvent StopTrackEvent;
 
-    private ScreenTracker ScreenTracker = null;
+    [CanBeNull] private ScreenTracker ScreenTracker;
 
     private void Start()
     {
         switch (Application.platform)
         {
             case RuntimePlatform.Android:
+            case RuntimePlatform.IPhonePlayer:
                 ScreenTracker = new TouchScreenTracker();
                 break;
+
             case RuntimePlatform.WindowsEditor:
             case RuntimePlatform.LinuxEditor:
+            case RuntimePlatform.OSXEditor:
                 ScreenTracker = new MouseScreenTracker();
                 break;
-            default:
+                
+            case RuntimePlatform.OSXPlayer:
+            case RuntimePlatform.WindowsPlayer:
+            case RuntimePlatform.WebGLPlayer:
+                ScreenTracker = new MouseScreenTracker();
                 break;
         }
 
-        Assert.IsNotNull(ScreenTracker);
-
-        ScreenTracker.StartScreenTrackEvent = StartTrackEvent;
-        ScreenTracker.ContinueScreenTrackEvent = ContinueTrackEvent;
-        ScreenTracker.StopScreenTrackEvent = StopTrackEvent;
+        if (ScreenTracker != null)
+        {
+            ScreenTracker.StartScreenTrackEvent = StartTrackEvent;
+            ScreenTracker.ContinueScreenTrackEvent = ContinueTrackEvent;
+            ScreenTracker.StopScreenTrackEvent = StopTrackEvent;
+        }
     }
 
     void Update()
     {
-        ScreenTracker.UpdateTrack();
+        ScreenTracker?.UpdateTrack();
     }
 
     public void OnPause()
     {
-        ScreenTracker.Pause();
+        ScreenTracker?.Pause();
     }
     public void OnResume()
     {
-        ScreenTracker.Resume();
+        ScreenTracker?.Resume();
     }
 }
 
 class ScreenTracker
 {
-    public MainController.TrackEvent StartScreenTrackEvent;
-    public MainController.TrackEvent ContinueScreenTrackEvent;
-    public MainController.TrackEvent StopScreenTrackEvent;
+    [CanBeNull]
+    public MainController.TrackEvent StartScreenTrackEvent { get; set; }
+    
+    [CanBeNull]
+    public MainController.TrackEvent ContinueScreenTrackEvent { get; set; }
+    
+    [CanBeNull]
+    public MainController.TrackEvent StopScreenTrackEvent { get; set; }
 
-    private bool IsNeedEmitTrackEvent = false;
-    private bool IsPause = false;
+    private bool IsNeedEmitTrackEvent;
+    private bool IsPause;
 
     public virtual void UpdateTrack()
     {
@@ -84,7 +97,7 @@ class ScreenTracker
 
         IsNeedEmitTrackEvent = true;
 
-        StartScreenTrackEvent.Invoke(screenPoint);
+        StartScreenTrackEvent?.Invoke(screenPoint);
     }
 
     protected void ContinueScreenTrack(Vector2 screenPoint, int touchId = -1)
@@ -94,7 +107,7 @@ class ScreenTracker
             return;
         }
 
-        ContinueScreenTrackEvent.Invoke(screenPoint);
+        ContinueScreenTrackEvent?.Invoke(screenPoint);
     }
 
     protected void StopScreenTrack(Vector2 screenPoint, int touchId = -1)
@@ -104,7 +117,7 @@ class ScreenTracker
             return;
         }
 
-        StopScreenTrackEvent.Invoke(screenPoint);
+        StopScreenTrackEvent?.Invoke(screenPoint);
     }
 
     private bool IsPointOnUI(int touchId)
@@ -115,7 +128,7 @@ class ScreenTracker
 
 class MouseScreenTracker : ScreenTracker
 {
-    private bool IsMouseButtonDown0 = false;
+    private bool IsMouseButtonDown0;
 
     public override void UpdateTrack()
     {
@@ -136,7 +149,6 @@ class MouseScreenTracker : ScreenTracker
         if (IsMouseButtonDown0)
         {
             ContinueScreenTrack(Input.mousePosition);
-            return;
         }
     }
 }
@@ -158,8 +170,6 @@ class TouchScreenTracker : ScreenTracker
                     break;
                 case TouchPhase.Ended:
                     StopScreenTrack(touch.position);
-                    break;
-                default:
                     break;
             }
         }
